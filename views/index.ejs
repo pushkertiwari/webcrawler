@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+      <table>
+          <tr>
+          <td class="title">Web url</td>
+          <td><input class="inputWeb" type="text" name="url_name" id="url_name_id" value="" required ></td>
+          </tr>
+          <tr>
+          <td colspan="3"><input class="submitBtn" id="submitBtnId" onclick="startCrawler()" type="submit" value="Save" ></td>
+          
+          </tr>
+      </table>
+      <div id="processing"></div>
+      <h2>JSON Rendered as a Output</h2>
+      <div id="responseSection"></div>
+      
+  </body>
+  <script type="text/javascript">
+    function startCrawler(){
+      const val = document.getElementById('url_name_id').value
+      if(val && val.includes('http')){
+        document.getElementById('processing').innerText = 'Processing';
+        fetch('/crawling',{
+          method: 'POST',
+          body: JSON.stringify({link: val}),
+          headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+        }).then(resp => resp.json()).then((response) => {
+          const { data,isPageValid } = response;
+          var processingObj = document.getElementById('processing');
+          if(data && data.length > 0 && isPageValid){
+            processingObj.innerText = '';
+            document.getElementById('responseSection').innerText =  JSON.stringify(data, null, 4);
+          }else if(!isPageValid){
+            processingObj.innerText = '';
+            document.getElementById('responseSection').innerText = 'In valid Page'
+          }else if(data && data.length === 0 && isPageValid){
+            processingObj.innerText = '';
+            document.getElementById('responseSection').innerText = 'No Data!!'
+          }else {
+            processingObj.innerText = '';
+            document.getElementById('responseSection').innerText = 'No Data!!'
+          }
+        }).catch((err) => {
+          console.log(err);
+          document.getElementById('responseSection').innerText = 'No Data!!';
+        })
+      }else {
+        alert('Please enter valid page url')
+      }
+    }
+  </script>
+</html>
